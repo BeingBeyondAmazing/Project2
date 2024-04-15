@@ -13,6 +13,7 @@ public class Graph {
         Pixel right;
         Pixel left;
         Color color;
+        int energy;
 
         //Pixel Constructor
         public Pixel(Color color){
