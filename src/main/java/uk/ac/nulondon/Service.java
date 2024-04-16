@@ -15,9 +15,6 @@ public class Service {
     //keeps track of the index of the column that will be removed
     private int toBeRemoved = -1;
 
-    //Stack that keeps track of the prior Images for undo() purposes
-    private final Stack<Color[][]> previous = null;
-
     public Service(Image img){
         this.img = img;
     }
@@ -26,7 +23,7 @@ public class Service {
      * Highlights a given seam, dependent on whether it is blue or lowest energy
      * @throws IOException Makes sure the ImageIO class can operate properly within function
      */
-    public void Highlight() throws IOException {
+    public void highlight(boolean blueOrEnergy) throws IOException {
 
     }
 

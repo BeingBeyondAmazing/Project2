@@ -48,6 +48,11 @@ public class Image {
 
     //Removes a seam provided as a stack of Pixels row by row
     public void removeSeam(Stack<Graph.Pixel> remNodes){
+        if(img.getWidth() <= 1){
+            System.out.println("Cannot remove any more seams;");
+            return;
+        }
+
         Stack<Graph.Pixel> remPixels = new Stack<>();
         Graph.Pixel remP;
 

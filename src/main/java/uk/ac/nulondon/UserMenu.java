@@ -10,8 +10,8 @@ public class UserMenu {
     //Choice of the user (random, blue, undo, quit)
     private static String choice = "invalid";
 
-    //Keeps track of history of changes
-    private static final Stack<String> editHistory = new Stack<>();
+    //Boolean value to track whether a removal can be made
+    private boolean readyToRemove = false;
 
     /**
      * Prints the options the user chooses from
@@ -32,20 +32,19 @@ public class UserMenu {
     public static void printResponse(String selection) throws IOException{
         switch(selection) {
             case "b":
-                img.highlightBlue();
-                System.out.println("Bluest seam highlighted .");
+                img.highlight(true);
+                System.out.println("Remove the bluest seam. Select (d) to confirm, any other key to cancel");
                 break;
             case "r":
-                img.highlightEnergy();
-                System.out.println("Lowest energy seam highlighted.");
+                img.highlight(false);
+                System.out.println("Remove the lowest energy seam. Select (d) to confirm, any other key to cancel");
                 break;
             case "d":
-                img.removeSeam();
-                System.out.println("Seam removed.");
+                System.out.println("Please make a selection first.");
                 break;
             case "u":
                 img.undo();
-                System.out.println("Last removal undone.");
+                System.out.println("Last edit restored.");
                 break;
             case "q":
                 System.out.println("Thanks for playing.");
@@ -90,6 +89,16 @@ public class UserMenu {
                 choice = scan.next().toLowerCase();
                 //prints responses to the choice
                 printResponse(choice);
+            }
+
+            if(choice.equals("r") || choice.equals("b")){
+                choice = scan.next().toLowerCase();
+                if(choice.equals("d")){
+                    img.removeSeam();
+                }
+                else{
+                    img.undo
+                }
             }
 
             //If choice is quit, terminate function

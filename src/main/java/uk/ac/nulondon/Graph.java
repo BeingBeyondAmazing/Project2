@@ -21,6 +21,7 @@ public class Graph {
             this.right = null;
             this.left = null;
             energy = 0;
+
         }
 
         //Overloaded Constructor
@@ -96,6 +97,7 @@ public class Graph {
         for(int y = 0; y< leftCol.size(); y++){
             Pixel temp = getTemp(leftCol.get(y));
             while(temp != null){
+                //if(temp.inSeam == true){newImg.setRGB(x,y,);
                 newImg.setRGB(x,y, temp.color.getRGB());
                 x++;
                 temp = temp.right;
