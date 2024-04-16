@@ -13,6 +13,7 @@ import java.util.Stack;
 public class Image {
     //represents image as a 2d array of objects type Color
     private Graph img;
+    private Stack<Stack<Graph.Pixel>> seamHistory = new Stack<>();
 
     /**
      * Constructor for class Image
@@ -41,12 +42,37 @@ public class Image {
 
     }
 
-    public highlightSeam(){
+    public void highlightSeam(Stack<Graph.Pixel> highlightPix, Color col){
 
     }
 
-    public removeSeam(Stack remNodes){
-        for(int y = 0; y < img.)
+    //Removes a seam provided as a stack of Pixels row by row
+    public void removeSeam(Stack<Graph.Pixel> remNodes){
+        Stack<Graph.Pixel> remPixels = new Stack<>();
+        Graph.Pixel remP;
+
+        for(int y = 0; y < img.getHeight(); y++){
+            remP = remNodes.pop();
+            remPixels.add(remP);
+
+            if(remP.left == null){
+                //somewhere else assure the graph is more than one column
+                img.setLeftCol(y, remP.right);
+                remP.right.left = null;
+            }
+            else if(remP.right == null){
+                remP.left.right = null;
+            }
+            else {
+                remP.left.right = remP.right;
+                remP.right.left = remP.left;
+            }
+        }
+        seamHistory.add(remPixels);
+    }
+
+    public insertSeam(Stack<Graph.Pixel> addNodes){
+
     }
 
 }
