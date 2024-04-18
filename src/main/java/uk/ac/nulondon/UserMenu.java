@@ -1,7 +1,8 @@
 package uk.ac.nulondon;
 
+import java.awt.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.Scanner;
 public class UserMenu {
 
     //represents the image to be operated on
@@ -32,18 +33,20 @@ public class UserMenu {
     public static void printResponse(String selection) throws IOException{
         switch(selection) {
             case "b":
-                img.highlight(true);
+                img.findSeam(true);
+                img.highlight(Color.BLUE);
                 System.out.println("Remove the bluest seam. Select (d) to confirm, any other key to cancel");
                 break;
-            case "r":
-                img.highlight(false);
+            case "e":
+                img.findSeam(false);
+                img.highlight(Color.RED);
                 System.out.println("Remove the lowest energy seam. Select (d) to confirm, any other key to cancel");
                 break;
             case "d":
                 System.out.println("Please make a selection first.");
                 break;
             case "u":
-                img.undo();
+                //img.undo();
                 System.out.println("Last edit restored.");
                 break;
             case "q":
@@ -72,9 +75,11 @@ public class UserMenu {
         while(!validFile) {
             System.out.println("Welcome! Enter file path");
             try {
-                img = new Service(new Image(scan.nextLine()));
+                //img = new Service(scan.nextLine());
+                img = new Service("/Users/bwelsh/proj2/src/main/resources/beach.png");
                 validFile = true;
             } catch (Exception e) {
+
                 System.out.println("Input should be a valid file path");
             }
         }
@@ -91,20 +96,20 @@ public class UserMenu {
                 printResponse(choice);
             }
 
-            if(choice.equals("r") || choice.equals("b")){
+            if(choice.equals("e") || choice.equals("b")){
                 choice = scan.next().toLowerCase();
                 if(choice.equals("d")){
                     img.removeSeam();
+                    System.out.println("Seam Removed.");
                 }
                 else{
-                    img.undo
+                    System.out.println("Operation canceled");
                 }
             }
 
             //If choice is quit, terminate function
             if(choice.equals("q")){
                 shouldQuit = true;
-                printResponse(choice);
             }
         }
         img.finalImg();
