@@ -1,5 +1,6 @@
 package uk.ac.nulondon;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Scanner;
 public class UserMenu {
@@ -32,18 +33,20 @@ public class UserMenu {
     public static void printResponse(String selection) throws IOException{
         switch(selection) {
             case "b":
-                //img.highlight(true);
+                img.findSeam(true);
+                img.highlight(Color.BLUE);
                 System.out.println("Remove the bluest seam. Select (d) to confirm, any other key to cancel");
                 break;
             case "e":
-                //img.highlight(false);
+                img.findSeam(false);
+                img.highlight(Color.RED);
                 System.out.println("Remove the lowest energy seam. Select (d) to confirm, any other key to cancel");
                 break;
             case "d":
                 System.out.println("Please make a selection first.");
                 break;
             case "u":
-                //img.undo();
+                img.undo();
                 System.out.println("Last edit restored.");
                 break;
             case "q":
@@ -96,7 +99,7 @@ public class UserMenu {
             if(choice.equals("e") || choice.equals("b")){
                 choice = scan.next().toLowerCase();
                 if(choice.equals("d")){
-                    //img.removeSeam();
+                    img.removeSeam();
                     System.out.println("Seam Removed.");
                 }
                 else{
