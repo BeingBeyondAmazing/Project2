@@ -42,7 +42,7 @@ public class Graph {
 
         for (int y = 0; y <= 3; y++) {
             for (int x = 3; x >= 0; x--) {
-                double[][] testArray = {{1.0, 2.0, 3.0, 4.0}, {4.0, 1.0, 7.0, 8.0}, {6.0, 5.0, 2.0, 3.0}, {7.0, 1.0, 8.0, 2.0}};
+                double[][] testArray = {{5.0, 6.0, 3.0, 8.0}, {4.0, 1.0, 6.0, 4.0}, {3.0, 2.0, 1.0, 3.0}, {8.0, 6.0, 5.0, 2.0}};
                 current = new Pixel(Color.black, testArray[y][x]);
                 current.right = previous;
                 if (previous != null) {
