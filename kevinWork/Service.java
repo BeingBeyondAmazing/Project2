@@ -12,6 +12,8 @@ import java.util.Stack;
 public class Service {
 
     private Image img;
+    private BufferedImage  buffImg;
+    private File originalFile;
     //Keeps track of which image we are on (for png name purposes)
     private int count = 0;
 
@@ -20,8 +22,8 @@ public class Service {
     private ArrayList<Image.Pixel> toBeRemoved = new ArrayList<>();
 
     public Service(String filePath) throws IOException {
-            File originalFile = new File(filePath);
-            BufferedImage buffImg = ImageIO.read(originalFile);
+            originalFile = new File(filePath);
+            buffImg = ImageIO.read(originalFile);
             img = new Image(buffImg);
     }
 
@@ -35,6 +37,14 @@ public class Service {
 
     public Image getImage(){
         return img;
+    }
+
+    public BufferedImage getBuffImg(){
+        return buffImg;
+    }
+
+    public File getOriginalFile(){
+        return originalFile;
     }
     public ArrayList<Image.Pixel> findSeam(boolean borE){
         //not sure if I should use Collections.min or use these current if elif else statements
@@ -127,14 +137,14 @@ public class Service {
                 nodeIndex++;
             }
 //            useful print system for debugging
-            System.out.println("--- Current Seams ---");
-            for (ArrayList<Image.Pixel> list: currentSeams){
-                for (Image.Pixel pixel: list) {
-                    System.out.print(pixel.color.getBlue()+" ");
-                }
-                System.out.println();
-            }
-            System.out.println("--------------------");
+//            System.out.println("--- Current Seams ---");
+//            for (ArrayList<Image.Pixel> list: currentSeams){
+//                for (Image.Pixel pixel: list) {
+//                    System.out.print(pixel.color.getBlue()+" ");
+//                }
+//                System.out.println();
+//            }
+//            System.out.println("--------------------");
             prevSeams = (ArrayList)currentSeams.clone();
             currentSeams.clear();
             prevValues = (ArrayList)currentValues.clone();
@@ -170,20 +180,7 @@ public class Service {
      * Removes the column determined in highlightBlue() or highlightEnergy(), creating and rendering a trimmed image
      * @throws IOException Makes sure the ImageIO class can operate properly within function
      */
-    public void removeSeam() throws IOException {
-        toBeRemoved = new ArrayList<>();
-        toBeRemoved.add(img.getAt(7,0));
-        toBeRemoved.add(img.getAt(7,1));
-        toBeRemoved.add(img.getAt(0,2));
-        toBeRemoved.add(img.getAt(1,3));
-        toBeRemoved.add(img.getAt(3,4));
-        toBeRemoved.add(img.getAt(5,5));
-        toBeRemoved.add(img.getAt(0,6));
-        toBeRemoved.add(img.getAt(3,7));
-
-        for(Image.Pixel p: toBeRemoved){
-            System.out.println("Energy: " + p.energy + " Blue Value: "+ p.color.getBlue());
-        }
+    public void removeSeam(ArrayList<Image.Pixel> toBeRemoved) throws IOException {
         if(img.getWidth() <= 1){
             System.out.println("Cannot remove any more seams;");
             return;
@@ -191,23 +188,53 @@ public class Service {
 
         for(int y = 0; y < toBeRemoved.size(); y++){
             Image.Pixel remP = toBeRemoved.get(y);
-            if(remP.left == null){
-                //somewhere else assure the graph is more than one column
-                img.setLeftCol(y, remP.right);
-                remP.right.left = null;
-            }
-            else if(remP.right == null){
-                remP.left.right = null;
-            }
-            else{
-                remP.left.right = remP.right;
-                remP.right.left = remP.left;
+            Image.Pixel currentP = img.leftCol.get(y);
+
+            while (currentP != null && currentP != remP) {
+                currentP = currentP.right;
             }
 
-            System.out.println(img.toString());
+            if (currentP == null) {
+                System.out.println("Pixel not found in the leftCol list.");
+                continue;
+            }
+
+            if (currentP.left == null) {
+                System.out.println("Left side removed");
+                img.setLeftCol(y, currentP.right);
+                if (currentP.right != null) {
+                    currentP.right.left = null;
+                }
+            } else if (currentP.right == null) {
+                System.out.println("Right side removed");
+                currentP.left.right = null;
+            } else {
+                System.out.println("image one: "+img.getAt(2, 0));
+                System.out.println("first one: "+currentP);
+                currentP.left.right = currentP.right;
+                currentP.right.left = currentP.left;
+            }
+
+//            if(remP.left == null){
+//                System.out.println("Left side removed");
+//                //somewhere else assure the graph is more than one column
+//                img.setLeftCol(y, remP.right);
+//                remP.right.left = null;
+//            }
+//            else if(remP.right == null){
+//                System.out.println("right side removed");
+//                remP.left.right = null;
+//            }
+//            else if(remP.right != null && remP.left !=null){
+//                System.out.println("central side removed");
+//                remP.left.right = remP.right;
+//                remP.right.left = remP.left;
+//            }
+
+//            System.out.println(img.toString());
         }
         seamHistory.add(toBeRemoved);
-        renderImg(img.toBuff());
+//        renderImg(img.toBuff());
     }
 
     /**
