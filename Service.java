@@ -18,6 +18,8 @@ public class Service {
     private final Stack<ArrayList<Image.Pixel>> seamHistory = new Stack<>();
     //The Current seam that will be removed
     private ArrayList<Image.Pixel> toBeRemoved = new ArrayList<>();
+    //Keeps track of the colors of highlighted seams
+    private ArrayList<Image.Pixel> removedColor = new ArrayList<>();
 
     /**
      * Service class constructor
@@ -30,19 +32,22 @@ public class Service {
             img = new Image(buffImg);
     }
 
+    public Image getImage(){
+        return img;
+    }
+
     /**
      * Finds the given seam
      * @param borE: Boolean value that determines whether we are looking for bluest or lowest energy seam
      */
     public void findSeam(boolean borE){
-        img.updateEnergies();
         //not sure if I should use Collections.min or use these current if elif else statements
         ArrayList<Double> prevValues = new ArrayList<>();
         for (Image.Pixel pixel: getFirstRowPixels()){
-            if(borE){prevValues.add((double) pixel.color.getBlue());}
+            double test = -1 * (double) pixel.color.getBlue();
+            if(borE){prevValues.add(test);}
             else{prevValues.add(pixel.energy);}
         }
-        ArrayList<Image.Pixel> prevPixels = new ArrayList<>(getFirstRowPixels());
         ArrayList<ArrayList<Image.Pixel>> prevSeams = new ArrayList<>();
         for (Image.Pixel pixel: getFirstRowPixels()){
             ArrayList placeholder = new ArrayList<>();
@@ -60,55 +65,60 @@ public class Service {
                 if (current.left == null){
                     //not sure if to leave in equal
                     if (prevValues.get(nodeIndex) <= prevValues.get(nodeIndex + 1)) {
-                        if(borE){currentValues.add(current.color.getBlue() + prevValues.get(nodeIndex));}
+                        if(borE){currentValues.add((-1*current.color.getBlue()) + prevValues.get(nodeIndex));}
                         else{currentValues.add(current.energy + prevValues.get(nodeIndex));}
                         ArrayList<Image.Pixel> prevSeam = new ArrayList<>(prevSeams.get(nodeIndex));
                         prevSeam.add(current);
                         currentSeams.add(prevSeam);
+
                     }
                     else {
-                        if(borE){currentValues.add(current.color.getBlue() + prevValues.get(nodeIndex+1));}
+                        if(borE){currentValues.add((-1*current.color.getBlue()) + prevValues.get(nodeIndex+1));}
                         else{currentValues.add(current.energy + prevValues.get(nodeIndex+1));}
-
                         ArrayList<Image.Pixel> prevSeam = new ArrayList<>(prevSeams.get(nodeIndex+1));
                         prevSeam.add(current);
                         currentSeams.add(prevSeam);
+
                     }
                 }
                 else if (current.right == null){
                     if (prevValues.get(nodeIndex - 1) <= prevValues.get(nodeIndex)) {
-                        if(borE){currentValues.add(current.color.getBlue() + prevValues.get(nodeIndex-1));}
+                        if(borE){currentValues.add((-1*current.color.getBlue()) + prevValues.get(nodeIndex-1));}
                         else{currentValues.add(current.energy + prevValues.get(nodeIndex-1));}
                         ArrayList<Image.Pixel> prevSeam = new ArrayList<>(prevSeams.get(nodeIndex-1));
                         prevSeam.add(current);
                         currentSeams.add(prevSeam);
+
                     }
                     else {
-                        if(borE){currentValues.add(current.color.getBlue() + prevValues.get(nodeIndex));}
+                        if(borE){currentValues.add((-1*current.color.getBlue()) + prevValues.get(nodeIndex));}
                         else{currentValues.add(current.energy + prevValues.get(nodeIndex));}
                         ArrayList<Image.Pixel> prevSeam = new ArrayList<>(prevSeams.get(nodeIndex));
                         prevSeam.add(current);
                         currentSeams.add(prevSeam);
+
                     }
                 }
                 else {
                     //not sure if to leave in equal
                     if ((prevValues.get(nodeIndex - 1) <= prevValues.get(nodeIndex)) && (prevValues.get(nodeIndex - 1) <= prevValues.get(nodeIndex + 1))){
-                        if(borE){currentValues.add(current.energy + prevValues.get(nodeIndex-1));}
+                        if(borE){currentValues.add((-1*current.color.getBlue()) + prevValues.get(nodeIndex-1));}
                         else{currentValues.add(current.energy + prevValues.get(nodeIndex-1));}
                         ArrayList<Image.Pixel> prevSeam = new ArrayList<>(prevSeams.get(nodeIndex-1));
                         prevSeam.add(current);
                         currentSeams.add(prevSeam);
+
                     }
                     else if ((prevValues.get(nodeIndex) <= prevValues.get(nodeIndex - 1)) && (prevValues.get(nodeIndex) <= prevValues.get(nodeIndex + 1))){
-                        if(borE){currentValues.add(current.color.getBlue() + prevValues.get(nodeIndex));}
+                        if(borE){currentValues.add((-1*current.color.getBlue()) + prevValues.get(nodeIndex));}
                         else{currentValues.add(current.energy + prevValues.get(nodeIndex));}
                         ArrayList<Image.Pixel> prevSeam = new ArrayList<>(prevSeams.get(nodeIndex));
                         prevSeam.add(current);
                         currentSeams.add(prevSeam);
+
                     }
                     else{
-                        if(borE){currentValues.add(current.color.getBlue() + prevValues.get(nodeIndex+1));}
+                        if(borE){currentValues.add((-1*current.color.getBlue()) + prevValues.get(nodeIndex+1));}
                         else{currentValues.add(current.energy + prevValues.get(nodeIndex+1));}
                         ArrayList<Image.Pixel> prevSeam = new ArrayList<>(prevSeams.get(nodeIndex+1));
                         prevSeam.add(current);
@@ -128,14 +138,13 @@ public class Service {
         int smallest = prevValues.indexOf(Collections.min(prevValues));
         int largest = prevValues.indexOf(Collections.max(prevValues));
         double smallestReal = Collections.min(prevValues);
-        if(borE){toBeRemoved = prevSeams.get(largest);}
+        ArrayList<Image.Pixel> seam = prevSeams.get(smallest);
         toBeRemoved = prevSeams.get(smallest);
     }
 
-    //findSeam helper method
     public ArrayList<Image.Pixel> getFirstRowPixels() {
         ArrayList<Image.Pixel> firstRowPixels = new ArrayList<>();
-        Image.Pixel firstPixel = img.leftCol.getFirst();
+        Image.Pixel firstPixel = img.leftCol.get(0);
         while (firstPixel!= null){
             firstRowPixels.add(firstPixel);
             firstPixel = firstPixel.right;
@@ -145,15 +154,34 @@ public class Service {
 
     /**
      * Highlights a given seam, dependent on whether it is blue or lowest energy
+     * This function does not highlight the pixel if it is in the first two columns
      * @throws IOException Makes sure the ImageIO class can operate properly within function
      */
     public void highlight(Color color) throws IOException {
-            renderImg(img.toBuff(toBeRemoved, color));
+        for(Image.Pixel p: toBeRemoved){
+            removedColor.add(new Image.Pixel(p.color));
+            p.color = color;
+        }
+
+        renderImg(img.toBuff());
     }
 
+    /**
+     * Undos a highlight
+     * @throws IOException
+     */
+    public void undoHighlight() throws IOException {
+        int y = 0;
+        for(Image.Pixel p: toBeRemoved){
+            p.color = removedColor.get(y).color;
+            y++;
+        }
+        renderImg(img.toBuff());
+    }
 
     /**
      * Removes the seam determined in findSeam, creating and rendering a trimmed image
+     * This function does not "remove" the pixel if it is not in the first two columns
      * @throws IOException Makes sure the ImageIO class can operate properly within function
      */
     public void removeSeam() throws IOException {
@@ -165,19 +193,16 @@ public class Service {
         for(int y = 0; y < toBeRemoved.size(); y++){
             Image.Pixel remP = toBeRemoved.get(y);
 
-            if(remP.left == null){
+            if (remP.left != null) {
+                remP.left.right = remP.right;
+            } else {
                 //somewhere else assure the graph is more than one column
                 img.setLeftCol(y, remP.right);
                 remP.right.left = null;
+            }
 
-            }
-            else if(remP.right == null){
-                remP.left.right = null;
-            }
-            else{
-                remP.left.right = remP.right;
+            if(remP.right != null){
                 remP.right.left = remP.left;
-                System.out.println(remP.left.color.getBlue() + " " +  remP.left.right.color.getBlue());
             }
         }
 
@@ -200,7 +225,6 @@ public class Service {
                 //somewhere else assure the graph is more than one column
                 img.setLeftCol(y, add);
                 add.right.left = add;
-
             }
             else if(add.right == null){
                 add.left.right = add;
@@ -209,6 +233,7 @@ public class Service {
                 add.left.right = add;
                 add.right.left = add;
             }
+            add.color = removedColor.get(y).color;
         }
 
         renderImg(img.toBuff());

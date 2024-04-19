@@ -11,9 +11,6 @@ public class UserMenu {
     //Choice of the user (random, blue, undo, quit)
     private static String choice = "invalid";
 
-    //Boolean value to track whether a removal can be made
-    private boolean readyToRemove = false;
-
     /**
      * Prints the options the user chooses from
      */
@@ -75,8 +72,7 @@ public class UserMenu {
         while(!validFile) {
             System.out.println("Welcome! Enter file path");
             try {
-                //img = new Service(scan.nextLine());
-                img = new Service("/Users/bwelsh/proj2/src/main/resources/beach.png");
+                img = new Service(scan.nextLine());
                 validFile = true;
             } catch (Exception e) {
 
@@ -97,6 +93,8 @@ public class UserMenu {
             }
 
             if(choice.equals("e") || choice.equals("b")){
+                img.findSeam(true);
+
                 choice = scan.next().toLowerCase();
                 if(choice.equals("d")){
                     img.removeSeam();
@@ -104,6 +102,7 @@ public class UserMenu {
                 }
                 else{
                     System.out.println("Operation canceled");
+                    img.undoHighlight();
                 }
             }
 
