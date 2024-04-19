@@ -21,6 +21,10 @@ public class Service {
     //Keeps track of the colors of highlighted seams
     private ArrayList<Image.Pixel> removedColor = new ArrayList<>();
 
+    //test values
+    private BufferedImage  buffImg;
+    private File originalFile;
+
     /**
      * Service class constructor
      * @param filePath: File path used to create buffered image
@@ -56,6 +60,17 @@ public class Service {
      */
     public Image getImage(){
         return img;
+    }
+
+    public BufferedImage getBuffImg(){
+        return buffImg;
+        /**
+         }
+         * Finds the given seam
+         * @param borE: Boolean value that determines whether we are looking for bluest or lowest energy seam
+        public File getOriginalFile(){
+        return originalFile;
+         */
     }
 
     /**
