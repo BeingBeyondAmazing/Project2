@@ -38,6 +38,13 @@ public class Image {
             this.left = left;
             energy = 0.0;
         }
+        public Pixel(Color color, double energy){
+            this.color = color;
+            this.right = null;
+            this.left = null;
+            this.energy = energy;
+
+        }
     }
 
     /**
@@ -64,6 +71,48 @@ public class Image {
         }
     }
 
+    //test Overloaded constructor that gives a graph preset values and the color black, used for testing functions
+    public Image (double[][] sampleEnergies){
+        Pixel previous = null;
+        Pixel current = null;
+
+        for (int y = 0; y < sampleEnergies.length; y++) {
+            for (int x = sampleEnergies[0].length-1; x >= 0; x--) {
+                double[][] testArray = sampleEnergies;
+                current = new Pixel(Color.black, testArray[y][x]);
+                current.right = previous;
+                if (previous != null) {
+                    previous.left = current;
+                }
+                previous = new Pixel(current.color, current.right, current.left, current.energy);
+//                System.out.println("current construct: "+current.energy);
+//                System.out.println("prev construct: "+previous.energy);
+            }
+            leftCol.add(y,current);
+//            System.out.println("number of rows: "+leftCol.size());
+            previous = null;
+        }
+    }
+
+    //another constructor used purely to test finding the bluest Seams. The input is a list of colors.
+    public Image (Color[][] sampleColors){
+        Pixel previous = null;
+        Pixel current = null;
+
+        for (int y = 0; y < sampleColors.length; y++) {
+            for (int x = sampleColors[0].length-1; x >= 0; x--) {
+                Color[][] testArray = sampleColors;
+                current = new Pixel(testArray[y][x]);
+                current.right = previous;
+                if (previous != null) {
+                    previous.left = current;
+                }
+                previous = new Pixel(current.color, current.right, current.left);
+            }
+            leftCol.add(y,current);
+            previous = null;
+        }
+    }
 
     /**
      * Creates temporary Pixel used to iterate without damaging data

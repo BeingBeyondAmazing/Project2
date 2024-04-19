@@ -32,6 +32,28 @@ public class Service {
             img = new Image(buffImg);
     }
 
+    /**
+     * Overloaded constructor for testing
+     * @param sampleEnergies
+     * @throws IOException
+     */
+    public Service(double[][] sampleEnergies) throws IOException {
+        img = new Image(sampleEnergies);
+    }
+
+    /**
+     * Overloaded constructor used for testing
+     * @param sampleColors
+     * @throws IOException
+     */
+    public Service(Color[][] sampleColors) throws IOException {
+        img = new Image(sampleColors);
+    }
+
+    /**
+     * Image getter used for testing
+     * @return image
+     */
     public Image getImage(){
         return img;
     }
@@ -40,7 +62,7 @@ public class Service {
      * Finds the given seam
      * @param borE: Boolean value that determines whether we are looking for bluest or lowest energy seam
      */
-    public void findSeam(boolean borE){
+    public ArrayList<Image.Pixel> findSeam(boolean borE){
         //not sure if I should use Collections.min or use these current if elif else statements
         ArrayList<Double> prevValues = new ArrayList<>();
         for (Image.Pixel pixel: getFirstRowPixels()){
@@ -140,6 +162,7 @@ public class Service {
         double smallestReal = Collections.min(prevValues);
         ArrayList<Image.Pixel> seam = prevSeams.get(smallest);
         toBeRemoved = prevSeams.get(smallest);
+        return toBeRemoved;
     }
 
     public ArrayList<Image.Pixel> getFirstRowPixels() {
