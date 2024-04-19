@@ -2,8 +2,8 @@ package uk.ac.nulondon;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Image {
     //List of Pixels representing the left most column of the image
@@ -16,7 +16,10 @@ public class Image {
         Color color;
         double energy;
 
-        //Pixel Constructor
+        /**
+         * Pixel Constructor
+         * @param color: represents the color of the pixel
+         */
         public Pixel(Color color){
             this.color = color;
             this.right = null;
@@ -25,7 +28,26 @@ public class Image {
 
         }
 
-        //Overloaded Constructor
+        /**
+         * Overloaded constructor used during testing, for graphs with preset energy values
+         * @param color: represents the color of the pixel
+         * @param energy: represents the energy of the pixel calculated by a method later
+         */
+        public Pixel(Color color, double energy){
+            this.color = color;
+            this.right = null;
+            this.left = null;
+            this.energy = energy;
+
+        }
+
+        /**
+         * Overloaded Constructor used for both testing and actual use
+         * @param color: represents the color of the pixel
+         * @param right: the pixel to the right of the current pixel
+         * @param left: the pixel to the left of the current pixel
+         * @param energy: represents the energy of the pixel calculated by a method later
+         */
         public Pixel(Color color, Pixel right, Pixel left, double energy){
             this.color = color;
             this.right = right;
@@ -33,6 +55,12 @@ public class Image {
             this.energy = energy;
         }
 
+        /**
+         * Overloaded constructor for actual use
+         * @param color: represents the color of the pixel
+         * @param right: the pixel to the right of the current pixel
+         * @param left: the pixel to the left of the current pixel
+         */
         public Pixel(Color color, Pixel right, Pixel left){
             this.color = color;
             this.right = right;
@@ -44,6 +72,7 @@ public class Image {
     /**
      * Image class constructor
      * @param img: buffered image that provides all rgb values
+     * Constructs a Graph object from a supplied bufferedImage
      */
     public Image (BufferedImage img){
 
@@ -65,6 +94,58 @@ public class Image {
         }
     }
 
+    /**
+     * test Overloaded constructor that gives a graph preset values and the color black, used for testing functions
+     * @param sampleEnergies: a set of test energy values that can be used to create an Image
+     */
+    public Image (double[][] sampleEnergies){
+        Pixel previous = null;
+        Pixel current = null;
+
+        for (int y = 0; y < sampleEnergies.length; y++) {
+            for (int x = sampleEnergies[0].length-1; x >= 0; x--) {
+                double[][] testArray = sampleEnergies;
+                current = new Pixel(Color.black, testArray[y][x]);
+                current.right = previous;
+                if (previous != null) {
+                    previous.left = current;
+                }
+                previous = new Pixel(current.color, current.right, current.left, current.energy);
+//                System.out.println("current construct: "+current.energy);
+//                System.out.println("prev construct: "+previous.energy);
+            }
+            leftCol.add(y,current);
+//            System.out.println("number of rows: "+leftCol.size());
+            previous = null;
+        }
+    }
+
+    /**
+     * another constructor used purely to test finding the bluest Seams. The input is a list of colors.
+     * @param sampleColors: a set of test colors that can be used to create an Image
+     */
+    public Image (Color[][] sampleColors){
+        Pixel previous = null;
+        Pixel current = null;
+
+        for (int y = 0; y < sampleColors.length; y++) {
+            for (int x = sampleColors[0].length-1; x >= 0; x--) {
+                Color[][] testArray = sampleColors;
+                current = new Pixel(testArray[y][x]);
+                current.right = previous;
+                if (previous != null) {
+                    previous.left = current;
+                }
+                previous = new Pixel(current.color, current.right, current.left);
+//                System.out.println("current construct: "+current.energy);
+//                System.out.println("prev construct: "+previous.energy);
+            }
+            leftCol.add(y,current);
+//            System.out.println("number of rows: "+leftCol.size());
+            previous = null;
+        }
+    }
+
 
     /**
      * Creates temporary Pixel used to iterate without damaging data
@@ -74,7 +155,6 @@ public class Image {
     }
 
     //Gets height of grid
-
     /**
      * @return height of grid
      */
@@ -84,7 +164,7 @@ public class Image {
 
     /**
      * @return the width of grid
-      */
+     */
     public int getWidth(){
         int width = 0;
         Pixel temp = getTemp(leftCol.getFirst());
@@ -94,6 +174,21 @@ public class Image {
             width++;
         }
         return width;
+    }
+
+    /**
+     * @param x - x coordinate of the chosen pixel
+     * @param y - y coordinate of the chosen pixel
+     * @return the chosen pixel
+     */
+    public Pixel getAt(int x, int y){
+        Pixel temp = getTemp(leftCol.get(y));
+
+        if(x >= getWidth()) {return null;}
+
+        for(int i = 0; i<x; i++){temp = temp.right;}
+
+        return temp;
     }
 
     /**
@@ -174,7 +269,7 @@ public class Image {
             while(temp != null){
                 horizE = 0.0;
                 vertE = 0.0;
-                
+
                 try {
                     horizE += pixBr[y-1][x-1];
                     vertE += pixBr[y-1][x-1];
@@ -246,7 +341,7 @@ public class Image {
     /**
      * Helper method that determines brightness of a pixel
      * @param p: Pixel of focus
-     * @return: Brightness
+     * @return Brightness
      */
     public Double br(Pixel p){
         return (int)(((p.color.getRed() + p.color.getBlue() + p.color.getGreen())/3.0)*100)/100.0;
